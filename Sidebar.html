@@ -1,0 +1,458 @@
+<!-- Archivo: Sidebar.html -->
+<!DOCTYPE html>
+<html>
+<head>
+ <base target="_top">
+ <title>Gmail Extractor</title>
+ <!-- Enlace a Tailwind CSS CDN para estilos modernos y responsivos -->
+ <script src="https://cdn.tailwindcss.com"></script>
+ <style>
+   /* Estilos personalizados para el panel lateral */
+   body {
+     font-family: 'Inter', sans-serif; /* Fuente Inter para un aspecto limpio */
+     margin: 0;
+     padding: 1rem;
+     background-color: #f3f4f6; /* Color de fondo suave */
+     color: #374151; /* Color de texto predeterminado */
+     display: flex;
+     flex-direction: column;
+     height: 100vh; /* Altura completa del viewport */
+     overflow-y: auto; /* Permite desplazamiento si el contenido es largo */
+   }
+
+
+   /* Contenedor principal con bordes redondeados y sombra */
+   .container {
+     background-color: #ffffff;
+     padding: 1.5rem;
+     border-radius: 1.5rem; /* Bordes muy redondeados */
+     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* Sombra suave */
+     margin-bottom: 1rem;
+   }
+
+
+   /* Estilo para los campos de entrada y select */
+   input[type="text"],
+   input[type="date"],
+   select {
+     width: 100%;
+     padding: 0.75rem 1rem;
+     border: 1px solid #d1d5db; /* Borde gris claro */
+     border-radius: 0.75rem; /* Bordes redondeados */
+     background-color: #f9fafb; /* Fondo ligeramente gris para inputs */
+     font-size: 1rem;
+     color: #1f2937;
+     transition: border-color 0.2s, box-shadow 0.2s; /* Transición suave al enfocar */
+   }
+
+
+   input[type="text"]:focus,
+   input[type="date"]:focus,
+   select:focus {
+     outline: none;
+     border-color: #6366f1; /* Borde morado al enfocar */
+     box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2); /* Sombra de enfoque */
+   }
+
+
+   /* Estilo para etiquetas de formulario */
+   label {
+     font-weight: 600; /* Texto de etiqueta en negrita */
+     margin-bottom: 0.5rem;
+     display: block; /* Para que ocupen toda la línea */
+     color: #4b5563;
+   }
+
+
+   /* Contenedor de casillas de verificación */
+   .checkbox-container {
+     display: flex;
+     align-items: center;
+     margin-top: 0.5rem;
+   }
+
+
+   /* Estilo para el input de casilla de verificación */
+   input[type="checkbox"] {
+     width: auto; /* Ancho automático para checkbox */
+     margin-right: 0.5rem;
+     border-radius: 0.375rem; /* Pequeño redondeo */
+     border: 1px solid #d1d5db;
+     accent-color: #6366f1; /* Color morado para el checkmark */
+   }
+
+
+   /* Estilo para botones */
+   button {
+     width: 100%;
+     padding: 0.75rem 1.5rem;
+     border: none;
+     border-radius: 1.5rem; /* Bordes muy redondeados para botones tipo chip */
+     font-size: 1rem;
+     font-weight: 700;
+     cursor: pointer;
+     transition: background-color 0.3s, transform 0.1s; /* Transiciones suaves */
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     gap: 0.5rem; /* Espacio entre el icono y el texto */
+   }
+
+
+   /* Botón principal (Iniciar Búsqueda) */
+   .btn-primary {
+     background-color: #6366f1; /* Morado vibrante */
+     color: #ffffff; /* Texto blanco */
+     box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.3), 0 2px 4px -1px rgba(99, 102, 241, 0.15); /* Sombra para profundidad */
+   }
+
+
+   .btn-primary:hover {
+     background-color: #4f46e5; /* Morado más oscuro al pasar el ratón */
+     transform: translateY(-1px); /* Ligero levantamiento */
+   }
+
+
+   .btn-primary:active {
+     transform: translateY(0); /* Presionado */
+     box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+   }
+
+
+   /* Botón secundario (Detener Proceso) */
+   .btn-secondary {
+     background-color: #ef4444; /* Rojo para detener */
+     color: #ffffff;
+     box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.3), 0 2px 4px -1px rgba(239, 68, 68, 0.15);
+   }
+
+
+   .btn-secondary:hover {
+     background-color: #dc2626; /* Rojo más oscuro al pasar el ratón */
+     transform: translateY(-1px);
+   }
+
+
+   .btn-secondary:active {
+     transform: translateY(0);
+     box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+   }
+
+
+   /* Contador de resultados */
+   #resultsCounter {
+     text-align: center;
+     margin-top: 1rem;
+     font-size: 1.125rem; /* Texto más grande */
+     font-weight: 700;
+     color: #10b981; /* Verde brillante para resultados */
+     background-color: #d1fae5; /* Fondo verde claro */
+     padding: 0.75rem 1rem;
+     border-radius: 1.5rem; /* Bordes redondeados */
+     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+   }
+
+
+   /* Indicador de carga */
+   #loadingIndicator {
+     display: none; /* Oculto por defecto */
+     text-align: center;
+     margin-top: 1rem;
+     color: #6366f1;
+     font-weight: 600;
+   }
+
+
+   /* Estilos para el spinner (opcional, pero útil) */
+   .spinner {
+     border: 4px solid rgba(0, 0, 0, 0.1);
+     width: 20px;
+     height: 20px;
+     border-radius: 50%;
+     border-left-color: #6366f1;
+     animation: spin 1s ease infinite;
+   }
+
+
+   @keyframes spin {
+     0% { transform: rotate(0deg); }
+     100% { transform: rotate(360deg); }
+   }
+
+
+   /* Estilo para las etiquetas de Gmail */
+   .label-tag {
+     background-color: #e0e7ff; /* Fondo azul claro */
+     color: #4f46e5; /* Texto azul oscuro */
+     padding: 0.25rem 0.75rem;
+     border-radius: 9999px; /* Píldora */
+     font-size: 0.875rem;
+     margin-right: 0.5rem;
+     margin-bottom: 0.5rem;
+     display: inline-block;
+     cursor: pointer; /* Indica que se puede hacer clic */
+     transition: background-color 0.2s;
+   }
+
+
+   .label-tag:hover {
+     background-color: #c7d2fe; /* Azul más claro al pasar el ratón */
+   }
+
+
+   .label-tag.selected {
+     background-color: #6366f1; /* Azul más oscuro cuando está seleccionado */
+     color: #ffffff;
+   }
+
+
+   /* Estilos para el contenedor de chips de etiquetas */
+   .labels-chip-container {
+     display: flex;
+     flex-wrap: wrap; /* Permite que las etiquetas se envuelvan */
+     gap: 0.5rem; /* Espacio entre los chips */
+     margin-top: 0.5rem;
+     padding: 0.75rem;
+     border: 1px solid #e5e7eb;
+     border-radius: 0.75rem;
+     background-color: #f9fafb;
+     max-height: 150px; /* Altura máxima para el scroll */
+     overflow-y: auto; /* Permite el desplazamiento vertical */
+   }
+
+
+ </style>
+</head>
+<body>
+ <div class="container">
+   <h1 class="text-xl font-bold text-center mb-6 text-gray-800">Gmail Extractor</h1>
+
+
+   <div class="mb-4">
+     <label for="labelsInput" class="mb-2">Etiquetas (selecciona o escribe):</label>
+     <input type="text" id="labelsInput" placeholder="Ej: Inbox, Importante" class="mb-2">
+     <div id="gmailLabelsContainer" class="labels-chip-container">
+       <!-- Las etiquetas de Gmail se cargarán aquí como chips -->
+     </div>
+   </div>
+
+
+   <div class="mb-4">
+     <label for="keywordsInput" class="mb-2">Palabras Clave:</label>
+     <input type="text" id="keywordsInput" placeholder="Ej: Factura, Pedido" class="mb-2">
+   </div>
+
+
+   <div class="mb-4 flex gap-4">
+     <div class="w-1/2">
+       <label for="startDateInput" class="mb-2">Desde (Fecha):</label>
+       <input type="date" id="startDateInput" class="mb-2">
+     </div>
+     <div class="w-1/2">
+       <label for="endDateInput" class="mb-2">Hasta (Fecha):</label>
+       <input type="date" id="endDateInput" class="mb-2">
+     </div>
+   </div>
+
+
+   <div class="mb-6 checkbox-container">
+     <input type="checkbox" id="includeAttachmentsCheckbox">
+     <label for="includeAttachmentsCheckbox" class="mb-0">Incluir Archivos Adjuntos</label>
+   </div>
+
+
+   <div class="flex flex-col gap-4">
+     <button id="startButton" class="btn-primary">
+       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+       Iniciar Búsqueda
+     </button>
+     <button id="stopButton" class="btn-secondary" disabled>
+       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square"><rect width="18" height="18" x="3" y="3" rx="2"/></svg>
+       Detener Proceso
+     </button>
+   </div>
+
+
+   <div id="loadingIndicator">
+     <div class="spinner mx-auto mb-2"></div>
+     Procesando correos...
+   </div>
+
+
+   <div id="resultsCounter">
+     0 correos extraídos.
+   </div>
+ </div>
+
+
+ <script>
+   // Función para manejar el éxito de la llamada a la función del lado del servidor.
+   function onSearchSuccess(result) {
+     document.getElementById('loadingIndicator').style.display = 'none'; // Oculta el indicador de carga.
+     document.getElementById('startButton').disabled = false; // Habilita el botón de iniciar.
+     document.getElementById('stopButton').disabled = true; // Deshabilita el botón de detener.
+
+
+     if (result.status === 'stopped') {
+       document.getElementById('resultsCounter').textContent = `${result.count} correos extraídos (Búsqueda detenida).`;
+       showAlert('Búsqueda detenida por el usuario.', 'warn');
+     } else {
+       document.getElementById('resultsCounter').textContent = `${result.count} correos extraídos.`;
+       showAlert('Búsqueda finalizada con éxito.', 'success');
+     }
+   }
+
+
+   // Función para manejar errores en la llamada a la función del lado del servidor.
+   function onSearchFailure(error) {
+     document.getElementById('loadingIndicator').style.display = 'none'; // Oculta el indicador de carga.
+     document.getElementById('startButton').disabled = false; // Habilita el botón de iniciar.
+     document.getElementById('stopButton').disabled = true; // Deshabilita el botón de detener.
+     document.getElementById('resultsCounter').textContent = `Error: ${error.message}`; // Muestra el mensaje de error.
+     showAlert(`Error en la búsqueda: ${error.message}`, 'error');
+   }
+
+
+   // Función para mostrar alertas personalizadas en el panel lateral.
+   function showAlert(message, type) {
+     const alertDiv = document.createElement('div');
+     alertDiv.textContent = message;
+     alertDiv.style.padding = '0.75rem';
+     alertDiv.style.borderRadius = '0.75rem';
+     alertDiv.style.marginTop = '1rem';
+     alertDiv.style.textAlign = 'center';
+     alertDiv.style.fontSize = '0.9rem';
+     alertDiv.style.fontWeight = '600';
+
+
+     if (type === 'success') {
+       alertDiv.style.backgroundColor = '#d1fae5';
+       alertDiv.style.color = '#065f46';
+     } else if (type === 'error') {
+       alertDiv.style.backgroundColor = '#fee2e2';
+       alertDiv.style.color = '#991b1b';
+     } else if (type === 'warn') {
+       alertDiv.style.backgroundColor = '#fffbeb';
+       alertDiv.style.color = '#9a3412';
+     } else {
+       alertDiv.style.backgroundColor = '#e0f2fe';
+       alertDiv.style.color = '#0284c7';
+     }
+
+
+     document.querySelector('.container').appendChild(alertDiv);
+
+
+     // Elimina la alerta después de 5 segundos.
+     setTimeout(() => {
+       alertDiv.remove();
+     }, 5000);
+   }
+
+
+   // Función que se ejecuta cuando el DOM está completamente cargado.
+   document.addEventListener('DOMContentLoaded', function() {
+     const labelsInput = document.getElementById('labelsInput');
+     const keywordsInput = document.getElementById('keywordsInput');
+     const startDateInput = document.getElementById('startDateInput');
+     const endDateInput = document.getElementById('endDateInput');
+     const includeAttachmentsCheckbox = document.getElementById('includeAttachmentsCheckbox');
+     const startButton = document.getElementById('startButton');
+     const stopButton = document.getElementById('stopButton');
+     const loadingIndicator = document.getElementById('loadingIndicator');
+     const resultsCounter = document.getElementById('resultsCounter');
+     const gmailLabelsContainer = document.getElementById('gmailLabelsContainer');
+
+
+     // Carga las etiquetas de Gmail y las muestra como chips.
+     google.script.run.withSuccessHandler(function(labels) {
+       labels.forEach(labelName => {
+         const chip = document.createElement('span');
+         chip.className = 'label-tag';
+         chip.textContent = labelName;
+         chip.onclick = function() {
+           chip.classList.toggle('selected');
+           updateLabelsInput();
+         };
+         gmailLabelsContainer.appendChild(chip);
+       });
+     }).getGmailLabels();
+
+
+     // Actualiza el campo de entrada de etiquetas cuando se seleccionan/deseleccionan chips.
+     function updateLabelsInput() {
+       const selectedLabels = Array.from(gmailLabelsContainer.querySelectorAll('.label-tag.selected'))
+                                 .map(chip => chip.textContent);
+       labelsInput.value = selectedLabels.join(', ');
+     }
+
+
+     // Event listener para el botón de iniciar búsqueda.
+     startButton.addEventListener('click', function() {
+       // Deshabilita el botón de iniciar y habilita el de detener.
+       startButton.disabled = true;
+       stopButton.disabled = false;
+       loadingIndicator.style.display = 'block'; // Muestra el indicador de carga.
+       resultsCounter.textContent = '0 correos extraídos.'; // Reinicia el contador.
+
+
+       // Obtiene los valores de los campos de entrada.
+       const labels = labelsInput.value.trim();
+       const keywords = keywordsInput.value.trim();
+       const startDate = startDateInput.value; // Formato YYYY-MM-DD
+       const endDate = endDateInput.value;     // Formato YYYY-MM-DD
+       const includeAttachments = includeAttachmentsCheckbox.checked;
+
+
+       // Crea un objeto con las opciones de búsqueda.
+       const options = {
+         labels: labels,
+         keywords: keywords,
+         startDate: startDate,
+         endDate: endDate,
+         includeAttachments: includeAttachments
+       };
+
+
+       // Llama a la función 'searchEmails' del lado del servidor.
+       google.script.run
+           .withSuccessHandler(onSearchSuccess) // Función para manejar el éxito.
+           .withFailureHandler(onSearchFailure) // Función para manejar errores.
+           .searchEmails(options);
+     });
+
+
+     // Event listener para el botón de detener proceso.
+     stopButton.addEventListener('click', function() {
+       stopButton.disabled = true; // Deshabilita el botón de detener inmediatamente.
+       loadingIndicator.style.display = 'block'; // Muestra el indicador de carga brevemente.
+       resultsCounter.textContent = 'Solicitando detención...';
+
+
+       // Llama a la función 'stopEmailSearch' del lado del servidor.
+       google.script.run
+           .withSuccessHandler(function() {
+             showAlert('Se ha solicitado la detención del proceso. Espere un momento para que termine el lote actual.', 'info');
+             // La UI se actualizará completamente cuando searchEmails devuelva el estado 'stopped'.
+           })
+           .withFailureHandler(onSearchFailure)
+           .stopEmailSearch();
+     });
+   });
+
+
+   // Esta función permite al script del lado del servidor llamar de vuelta al cliente
+   // para actualizar el contador de resultados en tiempo real.
+   // Aunque la implementación del lado del servidor actualmente solo devuelve un resultado final,
+   // esta función está lista para futuras expansiones.
+   window.updateClientCount = function(count) {
+       document.getElementById('resultsCounter').textContent = `${count} correos extraídos.`;
+   };
+ </script>
+</body>
+</html>
+
+
+
+
+
